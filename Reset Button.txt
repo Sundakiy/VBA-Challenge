@@ -1,0 +1,16 @@
+Sub reset()
+
+Dim Ws As Worksheet
+    For Each Ws In ActiveWorkbook.Worksheets
+    Ws.Activate
+'Find the last Row in the Column
+
+Dim LR As Long
+
+LR = Range("A" & Rows.Count).End(xlUp).Row
+Range("I1:Q" & LR).Value = " "
+Range("K2:K" & LR).Interior.ColorIndex = -4142
+
+Next Ws
+
+End Sub

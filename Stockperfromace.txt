@@ -1,0 +1,223 @@
+Option Explicit
+
+Sub StockPerformance()
+'Psuedo Coding for the VBA Challenge
+' -------------------------------------------------------------
+'PART ONE
+' Get the ticker symbol per stock per year
+' Assign the Ticker symbol to the New Ticker Column
+' Compute the Year Change in the price which closing price minus opening price
+'Computer percent change under the percent chnage column
+' Compute the total Stock Volume
+' Format the Column based on if it's +ve (green) and -ve (red)
+' ------------------------------------------------------------
+' PART TWO
+
+' Return the greatest % increase Change per Ticker and the value
+' Return the greatest % decrease change per tciker and the value
+' Return the greatest Total Volume  per Ticker and the value
+' Assign column names to Columns "I" to "L"
+
+' Assign worksheet variable
+
+Dim Ws As Worksheet
+    For Each Ws In ActiveWorkbook.Worksheets
+    Ws.Activate
+
+'Declare the variables for the column array
+
+Dim ColumnName(3) As String
+
+ColumnName(0) = "Ticker"
+ColumnName(1) = "Yearly Change"
+ColumnName(2) = "Percent Change"
+ColumnName(3) = "Total Stock Volume"
+
+Dim i As Long
+    For i = 9 To 12
+        Cells(1, i).Value = ColumnName(i - 9)
+    
+    Next i
+    
+'Declare the opeining price variable
+
+Dim OpeningPrice As Double
+ 
+'Set initial open_price. Other opening prices will be determined in the conditional loop.
+ 
+OpeningPrice = Cells(2, 3).Value
+    
+'Set the variable for holding the ticker
+
+Dim TickerSymbol As String
+
+'Set the initial variable for holding the total Stock Volumn
+Dim Stock_Volume_Total As LongLong
+
+Stock_Volume_Total = 0
+
+'Declare variable for the Ticker row
+
+Dim Ticker_Row  As Integer
+    Ticker_Row = 2
+
+'Declare variable for the loop
+
+Dim LR As Long
+
+LR = Range("A" & Rows.Count).End(xlUp).Row
+
+
+'loop through the rows in column1 of Ticker
+
+    For i = 2 To LR
+
+
+'Assign a variable to the Opening Price
+  
+        If Cells(i + 1, 1).Value <> Cells(i, 1) Then
+            TickerSymbol = Cells(i, 1).Value
+    
+'print Ticker in the Column "I"
+            Range("I" & Ticker_Row).Value = TickerSymbol
+
+'Assign Variable to the closing price
+
+Dim ClosingPrice As Double
+
+'Subtract Closing from the first opening price
+            ClosingPrice = Cells(i, 6)
+            
+'Assign Variable for the YearlyChange
+
+Dim YearlyChange As Double
+            
+            YearlyChange = ClosingPrice - OpeningPrice
+            
+ ' Print the change in stock price in Column "J"
+ 
+      Range("J" & Ticker_Row).Value = YearlyChange
+
+
+'Define variable for the % change in Column "K"
+
+Dim PercentChange As Double
+
+  PercentChange = (YearlyChange / OpeningPrice) * 1
+
+' Print the percent change in Column "K"
+      
+      Range("K" & Ticker_Row).Value = PercentChange
+      
+'Format the Column "K" to reflect the colour
+            If PercentChange < 0 Then
+            
+                Range("K" & Ticker_Row).Interior.ColorIndex = 3
+            
+            Else
+                Range("K" & Ticker_Row).Interior.ColorIndex = 4
+            
+            End If
+            
+'For the column as % and rounding to 2
+
+            Range("K" & Ticker_Row).Value = FormatPercent(Range("K" & Ticker_Row).Value)
+            
+'Range("K" & Ticker_Row).Value = Application.WorksheetFunction.Round(Range("K" & Ticker_Row).Value, 2)
+
+'Increase the Stock Volume by the volume of the same Ticker
+
+     
+     Stock_Volume_Total = Stock_Volume_Total + Cells(i, 7).Value
+
+' print Stock volume Total in Column "L"
+            Range("L" & Ticker_Row).Value = Stock_Volume_Total
+            
+            
+' Set Ticker_Row to an increament of 1
+
+            Ticker_Row = Ticker_Row + 1
+            
+            OpeningPrice = Cells(i + 1, 3)
+            
+' Reset the Stock_Volume_Total to Zero
+            
+            Stock_Volume_Total = 0
+            
+'Operating the conditions when the rows have the same ticker symbol
+
+            Else
+                Stock_Volume_Total = Stock_Volume_Total + Cells(i, 7).Value
+            
+        
+        End If
+        
+    Next i
+
+'Assign column name to Column "P"
+
+Range("P1").Value = "Ticker"
+
+'Assign column name to Column "Q"
+
+Range("Q1").Value = "Value"
+
+'Declare the array for the variables
+
+Dim Changes(2) As String
+
+    Changes(0) = "Greatest % Increase"
+    Changes(1) = "Greatest % Decrease"
+    Changes(2) = "Greatest Total Volume"
+    
+'Print the the changes in their rows
+
+    For i = 2 To 4
+    
+                Range("O" & i).Value = Changes(i - 2)
+                            
+    
+    Next i
+
+'Declare variable for the Max & Min
+
+Dim Max As Double
+Dim Min As Double
+Dim MaxTotalVol As LongLong
+
+'Find the last Row in the Column
+
+LR = Range("A" & Rows.Count).End(xlUp).Row
+
+'Calculating the Greatest % increase
+Max = Application.WorksheetFunction.Max(Range("K2:K" & LR))
+
+'Calculating the Greatest % Decrease
+
+Min = Application.WorksheetFunction.Min(Range("K2:K" & LR))
+''Calculating the Greatest Total Volume
+
+MaxTotalVol = Application.WorksheetFunction.Max(Range("L2:L" & LR))
+'Assigning the values to the column "Q"
+
+Range("Q2").Value = Max
+'FormatPercent for Maxincresae
+Range("Q2").Value = FormatPercent(Range("Q2").Value)
+
+Range("Q3").Value = Min
+'FormatPercent for MinIncrease incresae
+Range("Q3").Value = FormatPercent(Range("Q3").Value)
+Range("Q4").Value = MaxTotalVol
+'Inserting the TickerSymbols
+
+Range("P2").Value = Application.WorksheetFunction.XLookup(Range("Q2").Value, Range("K2:K" & LR), Range("I2:I" & LR))
+Range("P3").Value = Application.WorksheetFunction.XLookup(Range("Q3").Value, Range("K2:K" & LR), Range("I2:I" & LR))
+Range("P4").Value = Application.WorksheetFunction.XLookup(Range("Q4").Value, Range("L2:L" & LR), Range("I2:I" & LR))
+
+Next Ws
+
+End Sub
+
+
+
+
